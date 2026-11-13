@@ -5,6 +5,7 @@ import com.academia.backend.model.Exercicio;
 import com.academia.backend.model.PlanoTreino;
 import com.academia.backend.model.enums.GrupoMuscular;
 import com.academia.backend.observer.impl.EstatisticaFrequenciaObserver;
+import com.academia.backend.observer.impl.NotificacaoObserver;
 import com.academia.backend.service.AlunoService;
 import com.academia.backend.service.CheckInService;
 import com.academia.backend.service.PlanoTreinoService;
@@ -17,17 +18,20 @@ public class AcademiaClient {
     private final PlanoTreinoService planoTreinoService;
     private final CheckInService checkInService;
     private final EstatisticaFrequenciaObserver estatisticaObserver;
+    private final NotificacaoObserver notificacaoObserver;
 
     public AcademiaClient(
             AlunoService alunoService,
             PlanoTreinoService planoTreinoService,
             CheckInService checkInService,
-            EstatisticaFrequenciaObserver estatisticaObserver
+            EstatisticaFrequenciaObserver estatisticaObserver,
+            NotificacaoObserver notificacaoObserver
     ) {
         this.alunoService = alunoService;
         this.planoTreinoService = planoTreinoService;
         this.checkInService = checkInService;
         this.estatisticaObserver = estatisticaObserver;
+        this.notificacaoObserver = notificacaoObserver;
     }
 
     /** Executa um pequeno cenário para demonstrar o funcionamento do backend. */
@@ -72,6 +76,12 @@ public class AcademiaClient {
         System.out.println("\n[CLIENT] Realizando dois check-ins para demonstrar o Observer...");
         checkInService.realizarCheckIn(aluno.id());
         checkInService.realizarCheckIn(aluno.id());
+
+        // Observer dinâmico: removemos um observador e o terceiro check-in não o notifica.
+        System.out.println("\n[CLIENT] Removendo o observador de notificação e fazendo um terceiro check-in...");
+        checkInService.removerObserver(notificacaoObserver);
+        checkInService.realizarCheckIn(aluno.id());
+        checkInService.registrarObserver(notificacaoObserver);
 
         System.out.printf(
                 "\n[CLIENT] Check-ins registrados: %d%n",

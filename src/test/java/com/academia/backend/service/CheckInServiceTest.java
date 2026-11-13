@@ -77,4 +77,34 @@ class CheckInServiceTest {
         assertEquals(1, segundoObserverExecutado.get());
         assertEquals(1, checkInRepository.listarPorAlunoId(aluno.id()).size());
     }
+
+    @Test
+    void observerRegistradoDepoisDeveSerNotificado() {
+        Aluno aluno = alunoService.cadastrar("Ana Souza");
+        AtomicInteger notificacoes = new AtomicInteger();
+        CheckInService service = new CheckInService(
+                alunoService, checkInRepository, List.of()
+        );
+
+        service.registrarObserver(checkIn -> notificacoes.incrementAndGet());
+        service.realizarCheckIn(aluno.id());
+
+        assertEquals(1, notificacoes.get());
+    }
+
+    @Test
+    void observerRemovidoNaoDeveMaisSerNotificado() {
+        Aluno aluno = alunoService.cadastrar("Ana Souza");
+        AtomicInteger notificacoes = new AtomicInteger();
+        CheckInObserver observer = checkIn -> notificacoes.incrementAndGet();
+        CheckInService service = new CheckInService(
+                alunoService, checkInRepository, List.of(observer)
+        );
+
+        service.realizarCheckIn(aluno.id());
+        service.removerObserver(observer);
+        service.realizarCheckIn(aluno.id());
+
+        assertEquals(1, notificacoes.get());
+    }
 }

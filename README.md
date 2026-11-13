@@ -1,109 +1,88 @@
 # Sistema de Academia — Backend Java
 
-Projeto de console desenvolvido em Java 21 e Spring Boot, com foco nos padrões de projeto **Builder** e **Observer** e no princípio Open/Closed.
+Aplicação de console em Java 21 e Spring Boot para o Trabalho Final de Design Patterns (Parte 1), tema **Academia**. O foco são os padrões **Builder** e **Observer**.
 
-> Neste primeiro momento, o projeto não possui frontend nem API REST. Ao iniciar a aplicação, a `AcademiaApplication` chama `AcademiaClient`, que executa um cenário demonstrativo no console.
+## Descrição do sistema
 
-## Requisitos
+Gerenciamento simplificado de uma academia, com três entidades principais:
 
-- JDK 21
+| Entidade | Descrição |
+|---|---|
+| `Aluno` | Pessoa cadastrada na academia (ativa ou inativa). |
+| `PlanoTreino` | Plano de treino do aluno: nome, objetivo, frequência semanal, exercícios e observações. |
+| `CheckIn` | Registro de presença do aluno, com data e hora. |
+
+Os dados ficam apenas em memória (sem banco de dados). Ao iniciar, a `AcademiaApplication` executa um cenário de demonstração no console (`AcademiaClient`).
+
+## Tecnologias e pré-requisitos
+
+- Java (JDK) 21 ou superior
 - Maven 3.6.3 ou superior
+- Spring Boot e JUnit 5
 
 ## Como executar
 
-Na raiz do projeto:
-
 ```bash
-mvn spring-boot:run
+mvn spring-boot:run   # executa a demonstração
+mvn test              # executa os testes
 ```
 
-Para executar os testes:
+## Exemplo de utilização
 
-```bash
-mvn test
+O cenário de demonstração cadastra uma aluna, cria um plano com o Builder, faz dois check-ins (os três observadores reagem), remove um observador e faz um terceiro check-in.
+
+```text
+[CLIENT] Plano 'Treino A' criado para Ana Souza.
+[CLIENT] Realizando dois check-ins para demonstrar o Observer...
+[AUDITORIA] Check-in 9bf4cd33-... registrado para o aluno 028c2b6a-... em 2026-11-12T02:13:03Z.
+[ESTATISTICA] Total de check-ins do aluno 028c2b6a-...: 1.
+[NOTIFICACAO] O aluno 028c2b6a-... realizou um check-in.
+...
+[CLIENT] Removendo o observador de notificação e fazendo um terceiro check-in...
+[AUDITORIA] Check-in 2a90600a-... registrado para o aluno 028c2b6a-... em 2026-11-12T02:13:03Z.
+[ESTATISTICA] Total de check-ins do aluno 028c2b6a-...: 3.
+[CLIENT] Check-ins registrados: 3
 ```
-
-Também é possível gerar o JAR:
-
-```bash
-mvn clean package
-java -jar target/academia-backend-0.0.1-SNAPSHOT.jar
-```
-
-## O que acontece ao iniciar
-
-1. O Spring cria os repositórios, serviços e observadores.
-2. `AcademiaApplication` chama `AcademiaClient` por meio de `CommandLineRunner`.
-3. O client cadastra uma aluna.
-4. O client cria um plano de treino usando `PlanoTreino.Builder`.
-5. O client realiza dois check-ins.
-6. Os observadores de auditoria, notificação e estatísticas reagem a cada check-in.
-7. O client consulta os registros e encerra a demonstração.
 
 ## Padrões de projeto
 
 ### Builder
 
-`PlanoTreino` possui uma classe interna `Builder`. Os dados essenciais (`alunoId`, `nome` e `objetivo`) são informados na criação do builder. Os demais valores podem ser configurados por métodos encadeados. O método `build()` valida o plano e cria um objeto imutável.
+**Problema que resolve:** o plano de treino tem atributos obrigatórios (aluno, nome, objetivo) e opcionais (frequência, exercícios, observações). Sem o Builder, seriam necessários um construtor longo ou vários construtores. O Builder monta o plano passo a passo e valida tudo antes de criá-lo.
 
-A lista de exercícios é copiada com `List.copyOf`, evitando alterações externas depois da criação do plano.
+**Classes envolvidas:** `PlanoTreino` (produto imutável), `PlanoTreino.Builder`, `Exercicio`, `GrupoMuscular` e `AcademiaClient` (uso).
+
+```java
+PlanoTreino plano = PlanoTreino.builder(aluno.id(), "Treino A", "Condicionamento físico")
+        .frequenciaSemanal(3)
+        .adicionarExercicio(new Exercicio("Agachamento livre", GrupoMuscular.PERNAS, 3, 12))
+        .build();
+```
+
+O `build()` rejeita planos inválidos (frequência fora de 1 a 7 ou sem exercícios).
 
 ### Observer
 
-`CheckInObserver` define o contrato para comportamentos interessados em um check-in. As implementações atuais são:
+**Problema que resolve:** ao fazer check-in, vários comportamentos precisam reagir (auditoria, notificação, estatística). Sem o Observer, o `CheckInService` teria de conhecer cada um deles. Com o Observer, ele apenas avisa quem estiver inscrito, e novos comportamentos não exigem alterar o serviço.
 
-- `AuditoriaFrequenciaObserver`: registra a ocorrência no console.
-- `NotificacaoObserver`: simula uma notificação no console.
-- `EstatisticaFrequenciaObserver`: contabiliza os check-ins por aluno.
+**Classes envolvidas:**
+- `CheckInService`: *Subject*; possui `registrarObserver`, `removerObserver` e notifica após salvar o check-in.
+- `CheckInObserver`: interface dos observadores.
+- `AuditoriaFrequenciaObserver`, `NotificacaoObserver`, `EstatisticaFrequenciaObserver`: observadores concretos.
+- `CheckIn`: evento enviado aos observadores.
 
-O `CheckInService` recebe `List<CheckInObserver>` pelo construtor. O Spring injeta todos os componentes que implementam essa interface. Para adicionar um novo comportamento, basta criar outra classe que implemente `CheckInObserver` e registrá-la como componente Spring. O serviço de check-in não precisa ser modificado.
+## Possíveis extensões futuras
 
-O check-in é salvo antes da notificação. Além disso, uma exceção em um observador é registrada e não impede a execução dos demais observadores.
+- Plano de assinatura (preço, duração e benefícios), reaproveitando o Builder.
+- Novos observers, como alerta de meta semanal ou envio de e-mail/SMS.
+- Persistência em banco de dados, API REST e interface web.
 
-## Organização dos pacotes
+## Contribuição individual
 
-```text
-com.academia.backend
-├── AcademiaApplication.java
-├── client
-│   └── AcademiaClient.java
-├── model
-│   ├── Aluno.java
-│   ├── CheckIn.java
-│   ├── Exercicio.java
-│   ├── PlanoTreino.java
-│   └── enums
-│       └── GrupoMuscular.java
-├── observer
-│   ├── CheckInObserver.java
-│   └── impl
-│       ├── AuditoriaFrequenciaObserver.java
-│       ├── EstatisticaFrequenciaObserver.java
-│       └── NotificacaoObserver.java
-├── repository
-│   ├── AlunoRepository.java
-│   ├── CheckInRepository.java
-│   ├── PlanoTreinoRepository.java
-│   └── memory
-│       ├── InMemoryAlunoRepository.java
-│       ├── InMemoryCheckInRepository.java
-│       └── InMemoryPlanoTreinoRepository.java
-└── service
-    ├── AlunoService.java
-    ├── CheckInService.java
-    └── PlanoTreinoService.java
-```
+| Integrantes|
 
-## Persistência
+| Gustavo de Freitas Cardoso |
 
-Os repositórios atuais são implementações em memória (`ConcurrentHashMap`). Os dados existem somente enquanto a aplicação está em execução e são perdidos ao encerrá-la.
+| Gustavo Luís da Silva |
 
-As interfaces dos repositórios separam as regras de negócio da tecnologia de armazenamento. Em uma etapa futura, podemos criar implementações com banco de dados sem precisar reescrever os serviços.
-
-## Decisões e limites desta primeira versão
-
-- Não há API REST nem dependência web.
-- O client contém dados de demonstração; ele não é uma interface de produção.
-- As notificações são simuladas pelo console.
-- O projeto ainda não possui autenticação, matrícula, cobrança ou integração com serviços externos.
-- A estatística do observador é mantida em memória e contabiliza os eventos recebidos durante a execução atual.
+| João Miguel Fortunato Rita |

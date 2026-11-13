@@ -9,8 +9,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Serviço de check-in. Também exerce o papel de Subject (observável) do padrão Observer:
+ * mantém a lista de observadores e os notifica sempre que um check-in é registrado.
+ */
 @Service
 public class CheckInService {
 
@@ -18,7 +24,8 @@ public class CheckInService {
 
     private final AlunoService alunoService;
     private final CheckInRepository checkInRepository;
-    private final List<CheckInObserver> observers;
+    // CopyOnWriteArrayList permite registrar/remover observadores sem quebrar uma notificação em andamento.
+    private final List<CheckInObserver> observers = new CopyOnWriteArrayList<>();
 
     public CheckInService(
             AlunoService alunoService,
@@ -27,7 +34,20 @@ public class CheckInService {
     ) {
         this.alunoService = alunoService;
         this.checkInRepository = checkInRepository;
-        this.observers = List.copyOf(observers);
+        this.observers.addAll(observers);
+    }
+
+    /** Inscreve um observador para ser avisado nos próximos check-ins. */
+    public void registrarObserver(CheckInObserver observer) {
+        Objects.requireNonNull(observer, "O observer não pode ser nulo.");
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+        }
+    }
+
+    /** Cancela a inscrição de um observador. */
+    public void removerObserver(CheckInObserver observer) {
+        observers.remove(observer);
     }
 
     public CheckIn realizarCheckIn(UUID alunoId) {
