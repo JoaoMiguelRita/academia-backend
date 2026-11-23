@@ -125,7 +125,7 @@ A preparação inicial foi estimada em aproximadamente **65% do trabalho distrib
 | Integrante | Entrega planejada | Situação | Commit |
 | --- | --- | --- | --- |
 | Guilherme | Ampliar o Builder, criar o observador de meta semanal, integrar a demonstração inicial e organizar a documentação. | Registrada em quatro commits. | `c8b6ff4`, `3705bb0`, `3b11dab`, `e43b908` |
-| Murilo | Completar a exibição do plano de adaptação, incluindo aluno, objetivo e exercícios, e conferir a configuração pelo Builder. | Pendente. | A preencher após o commit. |
+| Murilo | Completar a exibição do plano de adaptação, incluindo aluno, objetivo e exercícios, e conferir a configuração pelo Builder. | Concluída. | A preencher após o commit. |
 | Thiago | Completar a demonstração de inscrição e remoção do novo observador e conferir a notificação da meta semanal. | Pendente. | A preencher após o commit. |
 | João Paulo | Validar a execução final e fechar o README com exemplos e contribuições reais. | Pendente. | A preencher após o commit. |
 
