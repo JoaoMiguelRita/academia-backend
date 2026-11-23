@@ -122,6 +122,15 @@ public class AcademiaClient {
                 "%n[CLIENT] Parte 2: plano '%s', nível %s, duração de %d semanas e meta de %d dia(s) por semana.%n",
                 plano.getNome(), plano.getNivel(), plano.getDuracaoSemanas(), plano.getFrequenciaSemanal()
         );
+        System.out.printf("[CLIENT] Aluno: %s%n", aluno.nome());
+        System.out.printf("[CLIENT] Objetivo: %s%n", plano.getObjetivo());
+        System.out.println("[CLIENT] Exercicios do plano: ");
+        for (Exercicio exercicio : plano.getExercicios()){
+                System.out.printf("         - %s (%s): %d series de %d repetições%n", 
+                // esse espaço antes é só para ficar bonito, fizeram na linha 76 e segui o mesmo padrão aqui 
+                        exercicio.nome(), exercicio.grupoMuscular(), exercicio.series(), exercicio.repeticoes()
+                );
+        }
         System.out.println("[CLIENT] Primeiro check-in do plano de adaptação:");
         checkInService.realizarCheckIn(aluno.id());
         System.out.println("[CLIENT] Segundo check-in no mesmo dia. A meta é avisada uma vez por semana:");
