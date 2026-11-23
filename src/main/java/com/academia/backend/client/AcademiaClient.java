@@ -4,7 +4,9 @@ import com.academia.backend.model.Aluno;
 import com.academia.backend.model.Exercicio;
 import com.academia.backend.model.PlanoTreino;
 import com.academia.backend.model.enums.GrupoMuscular;
+import com.academia.backend.model.enums.NivelTreino;
 import com.academia.backend.observer.impl.EstatisticaFrequenciaObserver;
+import com.academia.backend.observer.impl.MetaSemanalObserver;
 import com.academia.backend.observer.impl.NotificacaoObserver;
 import com.academia.backend.service.AlunoService;
 import com.academia.backend.service.CheckInService;
@@ -19,19 +21,22 @@ public class AcademiaClient {
     private final CheckInService checkInService;
     private final EstatisticaFrequenciaObserver estatisticaObserver;
     private final NotificacaoObserver notificacaoObserver;
+    private final MetaSemanalObserver metaSemanalObserver;
 
     public AcademiaClient(
             AlunoService alunoService,
             PlanoTreinoService planoTreinoService,
             CheckInService checkInService,
             EstatisticaFrequenciaObserver estatisticaObserver,
-            NotificacaoObserver notificacaoObserver
+            NotificacaoObserver notificacaoObserver,
+            MetaSemanalObserver metaSemanalObserver
     ) {
         this.alunoService = alunoService;
         this.planoTreinoService = planoTreinoService;
         this.checkInService = checkInService;
         this.estatisticaObserver = estatisticaObserver;
         this.notificacaoObserver = notificacaoObserver;
+        this.metaSemanalObserver = metaSemanalObserver;
     }
 
     /** Executa um pequeno cenário para demonstrar o funcionamento do backend. */
@@ -92,8 +97,34 @@ public class AcademiaClient {
                 estatisticaObserver.consultarTotal(aluno.id())
         );
 
+        demonstrarPlanoAdaptacao();
+
         System.out.println("\n====================================================");
         System.out.println("            DEMONSTRAÇÃO FINALIZADA");
         System.out.println("====================================================");
+    }
+
+    private void demonstrarPlanoAdaptacao() {
+        Aluno aluno = alunoService.cadastrar("Bruno Lima");
+        PlanoTreino plano = PlanoTreino.builder(aluno.id(), "Adaptação", "Iniciar a rotina de treinos")
+                .nivel(NivelTreino.INICIANTE)
+                .duracaoSemanas(4)
+                .frequenciaSemanal(1)
+                .adicionarExercicio(new Exercicio("Agachamento livre", GrupoMuscular.PERNAS, 2, 10))
+                .adicionarExercicio(new Exercicio("Remada baixa", GrupoMuscular.COSTAS, 2, 10))
+                .observacoes("Acompanhar a execução dos exercícios com o instrutor.")
+                .build();
+
+        planoTreinoService.salvar(plano);
+        metaSemanalObserver.acompanharPlano(plano);
+
+        System.out.printf(
+                "%n[CLIENT] Parte 2: plano '%s', nível %s, duração de %d semanas e meta de %d dia(s) por semana.%n",
+                plano.getNome(), plano.getNivel(), plano.getDuracaoSemanas(), plano.getFrequenciaSemanal()
+        );
+        System.out.println("[CLIENT] Primeiro check-in do plano de adaptação:");
+        checkInService.realizarCheckIn(aluno.id());
+        System.out.println("[CLIENT] Segundo check-in no mesmo dia. A meta é avisada uma vez por semana:");
+        checkInService.realizarCheckIn(aluno.id());
     }
 }
