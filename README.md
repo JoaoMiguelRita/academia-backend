@@ -86,3 +86,47 @@ O `build()` rejeita planos inválidos (frequência fora de 1 a 7 ou sem exercíc
 | Gustavo Luís da Silva |
 
 | João Miguel Fortunato Rita |
+
+## Parte 2 — Extensão da equipe Pet Shop
+
+Equipe extensora formada por Guilherme, Murilo, Thiago e João Paulo. O desenvolvimento ocorre na branch `feature/extensao-parte2` do fork `guilhermegm-2k26/academia-backend`. O PR final terá como destino a branch `main` de `JoaoMiguelRita/academia-backend`.
+
+### Extensão do Builder
+
+O `PlanoTreino.Builder` recebeu os passos `nivel()` e `duracaoSemanas()`. O nível é representado por `NivelTreino`, com as opções `INICIANTE`, `INTERMEDIARIO` e `AVANCADO`. A duração aceita valores de 1 a 52 semanas. Chamadas já existentes ao Builder continuam válidas, com nível `INICIANTE` e duração de quatro semanas como valores padrão.
+
+A demonstração acrescenta um plano **Adaptação**, com exercícios de duas séries, nível iniciante, duração de quatro semanas e frequência de um dia por semana. Esses valores são configurados no Builder. A duração também define o período acompanhado pelo novo observador.
+
+### Extensão do Observer
+
+`MetaSemanalObserver` implementa o contrato existente `CheckInObserver`. O Spring o registra junto dos demais observadores. O método `acompanharPlano()` seleciona um plano por aluno, e a frequência semanal desse plano passa a ser a meta de dias de treino.
+
+Após cada check-in salvo, o observador consulta as presenças em memória e conta os dias diferentes da mesma semana, de segunda-feira a domingo, no fuso `America/Sao_Paulo`. Ao atingir a meta, imprime uma mensagem no console. A mensagem é emitida uma vez por plano e semana. Vários check-ins no mesmo dia representam um dia de treino. A contagem inclui a data de criação do plano e termina antes da data de criação acrescida da duração em semanas. Uma semana parcialmente coberta pela duração mantém a frequência configurada como meta.
+
+Alunos com um plano selecionado por `acompanharPlano()` participam desse acompanhamento. Selecionar outro plano para o mesmo aluno substitui o plano acompanhado. As presenças já salvas no período são consideradas na próxima notificação. Planos, presenças e registros de metas notificadas ficam em memória durante a execução.
+
+### Como executar e conferir a extensão
+
+Na raiz do projeto, execute:
+
+```bash
+mvn clean verify
+mvn spring-boot:run
+```
+
+A execução começa com o cenário original de Ana Souza e seus três check-ins. Em seguida, o console mostra o plano de adaptação de Bruno Lima, dois check-ins e uma mensagem iniciada por `[META SEMANAL]`. O segundo registro ocorre no mesmo dia e mantém uma única mensagem de meta. Os observadores de auditoria, estatística e notificação também recebem os novos check-ins.
+
+`mvn test` continua executando os nove testes originais. Os testes específicos do nível, da duração e da meta semanal estão distribuídos nas tarefas de continuidade.
+
+### Andamento e contribuições da equipe extensora
+
+A preparação atual corresponde a aproximadamente **65% do escopo planejado**, por distribuição de esforço. Essa estimativa considera o núcleo funcional dos dois padrões, a demonstração inicial e a documentação inicial. As entregas restantes somam os testes de regressão, a melhoria da demonstração e o fechamento da documentação.
+
+| Integrante | Entrega planejada | Situação | Commit |
+| --- | --- | --- | --- |
+| Guilherme | Ampliar o Builder, criar o observador de meta semanal, integrar a demonstração inicial e organizar a documentação. | Preparada localmente para revisão e commits incrementais. | A preencher após os commits. |
+| Murilo | Automatizar a validação dos novos campos e a compatibilidade do Builder. | Pendente. | A preencher após o commit. |
+| Thiago | Automatizar os cenários de meta semanal, duplicidade e integração do Observer. | Pendente. | A preencher após o commit. |
+| João Paulo | Completar o resumo da demonstração, validar a execução e fechar o README com as contribuições reais. | Pendente. | A preencher após o commit. |
+
+Cada integrante registra sua entrega com a própria conta do GitHub. A responsabilidade de abrir o PR final deve ser combinada pela equipe, observando a orientação recebida sobre integrantes que ainda estejam sem commit autoral na Parte 1. Ao concluir as tarefas, atualizem a situação e os hashes na tabela.
