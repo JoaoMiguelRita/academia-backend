@@ -116,17 +116,17 @@ mvn spring-boot:run
 
 A execução começa com o cenário original de Ana Souza e seus três check-ins. Em seguida, o console mostra o plano de adaptação de Bruno Lima, dois check-ins e uma mensagem iniciada por `[META SEMANAL]`. O segundo registro ocorre no mesmo dia e mantém uma única mensagem de meta. Os observadores de auditoria, estatística e notificação também recebem os novos check-ins.
 
-`mvn test` continua executando os nove testes originais. Os testes específicos do nível, da duração e da meta semanal estão distribuídos nas tarefas de continuidade.
+`mvn test` executa os nove testes originais do projeto. Criar novos arquivos de testes é opcional. Para conferir a extensão na apresentação, executem o cenário de adaptação e expliquem os passos do Builder e as mensagens do Observer.
 
 ### Andamento e contribuições da equipe extensora
 
-A preparação atual corresponde a aproximadamente **65% do escopo planejado**, por distribuição de esforço. Essa estimativa considera o núcleo funcional dos dois padrões, a demonstração inicial e a documentação inicial. As entregas restantes somam os testes de regressão, a melhoria da demonstração e o fechamento da documentação.
+A preparação inicial foi estimada em aproximadamente **65% do trabalho distribuído pela equipe**. O núcleo dos dois padrões e a demonstração inicial já estão implementados. As contribuições planejadas para os colegas são completar a apresentação do plano, demonstrar a inscrição e remoção do novo observador e fechar a documentação.
 
 | Integrante | Entrega planejada | Situação | Commit |
 | --- | --- | --- | --- |
-| Guilherme | Ampliar o Builder, criar o observador de meta semanal, integrar a demonstração inicial e organizar a documentação. | Preparada localmente para revisão e commits incrementais. | A preencher após os commits. |
-| Murilo | Automatizar a validação dos novos campos e a compatibilidade do Builder. | Pendente. | A preencher após o commit. |
-| Thiago | Automatizar os cenários de meta semanal, duplicidade e integração do Observer. | Pendente. | A preencher após o commit. |
-| João Paulo | Completar o resumo da demonstração, validar a execução e fechar o README com as contribuições reais. | Pendente. | A preencher após o commit. |
+| Guilherme | Ampliar o Builder, criar o observador de meta semanal, integrar a demonstração inicial e organizar a documentação. | Registrada em quatro commits. | `c8b6ff4`, `3705bb0`, `3b11dab`, `e43b908` |
+| Murilo | Completar a exibição do plano de adaptação, incluindo aluno, objetivo e exercícios, e conferir a configuração pelo Builder. | Pendente. | A preencher após o commit. |
+| Thiago | Completar a demonstração de inscrição e remoção do novo observador e conferir a notificação da meta semanal. | Pendente. | A preencher após o commit. |
+| João Paulo | Validar a execução final e fechar o README com exemplos e contribuições reais. | Pendente. | A preencher após o commit. |
 
 Cada integrante registra sua entrega com a própria conta do GitHub. A responsabilidade de abrir o PR final deve ser combinada pela equipe, observando a orientação recebida sobre integrantes que ainda estejam sem commit autoral na Parte 1. Ao concluir as tarefas, atualizem a situação e os hashes na tabela.
