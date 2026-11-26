@@ -131,9 +131,21 @@ public class AcademiaClient {
                         exercicio.nome(), exercicio.grupoMuscular(), exercicio.series(), exercicio.repeticoes()
                 );
         }
-        System.out.println("[CLIENT] Primeiro check-in do plano de adaptação:");
+        System.out.println("[CLIENT] Removendo o observador de meta semanal antes do primeiro check-in.");
+        checkInService.removerObserver(metaSemanalObserver);
+        System.out.println("[CLIENT] Primeiro check-in: auditoria, estatística e notificação continuam inscritos.");
         checkInService.realizarCheckIn(aluno.id());
-        System.out.println("[CLIENT] Segundo check-in no mesmo dia. A meta é avisada uma vez por semana:");
+
+        System.out.println("[CLIENT] Reinscrevendo o observador de meta semanal.");
+        checkInService.registrarObserver(metaSemanalObserver);
+        System.out.println("[CLIENT] Segundo check-in no mesmo dia: a presença anterior já está salva.");
         checkInService.realizarCheckIn(aluno.id());
+
+        System.out.println("[CLIENT] Terceiro check-in no mesmo dia: a mensagem da meta não deve se repetir.");
+        checkInService.realizarCheckIn(aluno.id());
+        System.out.printf(
+                "[CLIENT] Check-ins de %s: %d. Os três registros no mesmo dia representam um dia de treino.%n",
+                aluno.nome(), checkInService.listarPorAluno(aluno.id()).size()
+        );
     }
 }

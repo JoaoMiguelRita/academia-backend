@@ -114,7 +114,7 @@ mvn clean verify
 mvn spring-boot:run
 ```
 
-A execução começa com o cenário original de Ana Souza e seus três check-ins. Em seguida, o console mostra o plano de adaptação de Bruno Lima, dois check-ins e uma mensagem iniciada por `[META SEMANAL]`. O segundo registro ocorre no mesmo dia e mantém uma única mensagem de meta. Os observadores de auditoria, estatística e notificação também recebem os novos check-ins.
+A execução começa com o cenário original de Ana Souza e seus três check-ins. Em seguida, o console mostra o plano de adaptação de Bruno Lima. No primeiro check-in, o observador de meta está removido; auditoria, estatística e notificação continuam recebendo o evento. Ele é reinscrito antes do segundo check-in e emite a mensagem `[META SEMANAL]`, considerando as presenças já salvas. O terceiro registro no mesmo dia não repete a mensagem. Ao final, são exibidos três check-ins, equivalentes a um dia de treino.
 
 `mvn test` executa os nove testes originais do projeto. Criar novos arquivos de testes é opcional. Para conferir a extensão na apresentação, executem o cenário de adaptação e expliquem os passos do Builder e as mensagens do Observer.
 
@@ -126,7 +126,7 @@ A preparação inicial foi estimada em aproximadamente **65% do trabalho distrib
 | --- | --- | --- | --- |
 | Guilherme | Ampliar o Builder, criar o observador de meta semanal, integrar a demonstração inicial e organizar a documentação. | Registrada em quatro commits. | `c8b6ff4`, `3705bb0`, `3b11dab`, `e43b908` |
 | Murilo | Completar a exibição do plano de adaptação, incluindo aluno, objetivo e exercícios, e conferir a configuração pelo Builder. | Concluída. | A preencher após o commit. |
-| Thiago | Completar a demonstração de inscrição e remoção do novo observador e conferir a notificação da meta semanal. | Pendente. | A preencher após o commit. |
+| Thiago | Demonstração de remoção e reinscrição do observador de metas, com três check-ins no mesmo dia. | Implementada e conferida localmente; revisão da equipe pendente. | Registrada neste commit. |
 | João Paulo | Validar a execução final e fechar o README com exemplos e contribuições reais. | Pendente. | A preencher após o commit. |
 
 Cada integrante registra sua entrega com a própria conta do GitHub. A responsabilidade de abrir o PR final deve ser combinada pela equipe, observando a orientação recebida sobre integrantes que ainda estejam sem commit autoral na Parte 1. Ao concluir as tarefas, atualizem a situação e os hashes na tabela.
