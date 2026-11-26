@@ -29,7 +29,7 @@ mvn test              # executa os testes
 
 ## Exemplo de utilização
 
-O cenário de demonstração cadastra uma aluna, cria um plano com o Builder, faz dois check-ins (os três observadores reagem), remove um observador e faz um terceiro check-in.
+O cenário de demonstração começa com Ana Souza e preserva o fluxo original do sistema. Em seguida, cadastra Bruno Lima, cria o plano de adaptação com o Builder e demonstra a remoção e a reinscrição do observador de meta semanal. Os identificadores foram abreviados no exemplo porque são gerados novamente a cada execução.
 
 ```text
 [CLIENT] Plano 'Treino A' criado para Ana Souza.
@@ -42,39 +42,56 @@ O cenário de demonstração cadastra uma aluna, cria um plano com o Builder, fa
 [AUDITORIA] Check-in 2a90600a-... registrado para o aluno 028c2b6a-... em 2026-11-12T02:13:03Z.
 [ESTATISTICA] Total de check-ins do aluno 028c2b6a-...: 3.
 [CLIENT] Check-ins registrados: 3
+
+[CLIENT] Parte 2: plano 'Adaptação', nível INICIANTE, duração de 4 semanas e meta de 1 dia(s) por semana.
+[CLIENT] Aluno: Bruno Lima
+[CLIENT] Objetivo: Iniciar a rotina de treinos
+[CLIENT] Exercicios do plano:
+         - Agachamento livre (PERNAS): 2 series de 10 repetições
+         - Remada baixa (COSTAS): 2 series de 10 repetições
+[CLIENT] Removendo o observador de meta semanal antes do primeiro check-in.
+[CLIENT] Primeiro check-in: auditoria, estatística e notificação continuam inscritos.
+[AUDITORIA] Check-in ec8818e0-... registrado para o aluno 2eeb710c-... em 2026-11-26T23:31:24Z.
+[CLIENT] Reinscrevendo o observador de meta semanal.
+[CLIENT] Segundo check-in no mesmo dia: a presença anterior já está salva.
+[META SEMANAL] Aluno 2eeb710c-... atingiu a meta de 1 dia(s) na semana de 2026-11-23 com o plano 'Adaptação'.
+[CLIENT] Terceiro check-in no mesmo dia: a mensagem da meta não deve se repetir.
+[CLIENT] Check-ins de Bruno Lima: 3. Os três registros no mesmo dia representam um dia de treino.
 ```
 
 ## Padrões de projeto
 
 ### Builder
 
-**Problema que resolve:** o plano de treino tem atributos obrigatórios (aluno, nome, objetivo) e opcionais (frequência, exercícios, observações). Sem o Builder, seriam necessários um construtor longo ou vários construtores. O Builder monta o plano passo a passo e valida tudo antes de criá-lo.
+**Problema que resolve:** o plano de treino tem atributos obrigatórios (aluno, nome, objetivo) e opcionais (frequência, nível, duração, exercícios e observações). Sem o Builder, seriam necessários um construtor longo ou vários construtores. O Builder monta o plano passo a passo e valida tudo antes de criá-lo.
 
-**Classes envolvidas:** `PlanoTreino` (produto imutável), `PlanoTreino.Builder`, `Exercicio`, `GrupoMuscular` e `AcademiaClient` (uso).
+**Classes envolvidas:** `PlanoTreino` (produto imutável), `PlanoTreino.Builder`, `Exercicio`, `GrupoMuscular`, `NivelTreino` e `AcademiaClient` (uso).
 
 ```java
 PlanoTreino plano = PlanoTreino.builder(aluno.id(), "Treino A", "Condicionamento físico")
+		.nivel(NivelTreino.INICIANTE)
+		.duracaoSemanas(4)
         .frequenciaSemanal(3)
         .adicionarExercicio(new Exercicio("Agachamento livre", GrupoMuscular.PERNAS, 3, 12))
         .build();
 ```
 
-O `build()` rejeita planos inválidos (frequência fora de 1 a 7 ou sem exercícios).
+O `build()` rejeita planos inválidos, como frequência fora de 1 a 7, duração fora de 1 a 52 semanas ou uma lista de exercícios vazia.
 
 ### Observer
 
-**Problema que resolve:** ao fazer check-in, vários comportamentos precisam reagir (auditoria, notificação, estatística). Sem o Observer, o `CheckInService` teria de conhecer cada um deles. Com o Observer, ele apenas avisa quem estiver inscrito, e novos comportamentos não exigem alterar o serviço.
+**Problema que resolve:** ao fazer check-in, vários comportamentos precisam reagir (auditoria, notificação, estatística e acompanhamento da meta semanal). Sem o Observer, o `CheckInService` teria de conhecer cada um deles. Com o Observer, ele apenas avisa quem estiver inscrito, e novos comportamentos não exigem alterar o serviço.
 
 **Classes envolvidas:**
 - `CheckInService`: *Subject*; possui `registrarObserver`, `removerObserver` e notifica após salvar o check-in.
 - `CheckInObserver`: interface dos observadores.
-- `AuditoriaFrequenciaObserver`, `NotificacaoObserver`, `EstatisticaFrequenciaObserver`: observadores concretos.
+- `AuditoriaFrequenciaObserver`, `NotificacaoObserver`, `EstatisticaFrequenciaObserver` e `MetaSemanalObserver`: observadores concretos.
 - `CheckIn`: evento enviado aos observadores.
 
 ## Possíveis extensões futuras
 
 - Plano de assinatura (preço, duração e benefícios), reaproveitando o Builder.
-- Novos observers, como alerta de meta semanal ou envio de e-mail/SMS.
+- Novos observers, como envio de e-mail, SMS ou alerta de ausência prolongada.
 - Persistência em banco de dados, API REST e interface web.
 
 ## Contribuição individual
@@ -120,13 +137,13 @@ A execução começa com o cenário original de Ana Souza e seus três check-ins
 
 ### Andamento e contribuições da equipe extensora
 
-A preparação inicial foi estimada em aproximadamente **65% do trabalho distribuído pela equipe**. O núcleo dos dois padrões e a demonstração inicial já estão implementados. As contribuições planejadas para os colegas são completar a apresentação do plano, demonstrar a inscrição e remoção do novo observador e fechar a documentação.
+As etapas distribuídas entre os integrantes foram concluídas. A extensão do Builder, o observador de meta semanal, a apresentação completa do plano, a demonstração de inscrição e remoção do observador e a validação final estão reunidas nesta branch.
 
-| Integrante | Entrega planejada | Situação | Commit |
+| Integrante | Entrega | Situação | Commit |
 | --- | --- | --- | --- |
 | Guilherme | Ampliar o Builder, criar o observador de meta semanal, integrar a demonstração inicial e organizar a documentação. | Registrada em quatro commits. | `c8b6ff4`, `3705bb0`, `3b11dab`, `e43b908` |
-| Murilo | Completar a exibição do plano de adaptação, incluindo aluno, objetivo e exercícios, e conferir a configuração pelo Builder. | Concluída. | A preencher após o commit. |
-| Thiago | Demonstração de remoção e reinscrição do observador de metas, com três check-ins no mesmo dia. | Implementada e conferida localmente; revisão da equipe pendente. | Registrada neste commit. |
-| João Paulo | Validar a execução final e fechar o README com exemplos e contribuições reais. | Pendente. | A preencher após o commit. |
+| Murilo | Completar a exibição do plano de adaptação, incluindo aluno, objetivo e exercícios, e conferir a configuração pelo Builder. | Concluída. | `9fa74a2`, `5278a03` |
+| Thiago | Demonstrar a remoção e a reinscrição do observador de metas, com três check-ins no mesmo dia. | Concluída. | `f0efa5f` |
+| João Paulo | Validar a execução final e fechar o README com exemplos e contribuições reais. | Concluída. | Commit de fechamento da documentação |
 
-Cada integrante registra sua entrega com a própria conta do GitHub. A responsabilidade de abrir o PR final deve ser combinada pela equipe, observando a orientação recebida sobre integrantes que ainda estejam sem commit autoral na Parte 1. Ao concluir as tarefas, atualizem a situação e os hashes na tabela.
+Cada integrante registrou sua entrega com a própria conta do GitHub. A responsabilidade de abrir o PR final deve ser combinada pela equipe, observando a orientação recebida sobre integrantes que ainda estejam sem commit autoral na Parte 1.
