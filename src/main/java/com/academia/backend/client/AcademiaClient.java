@@ -131,7 +131,7 @@ public class AcademiaClient {
                         exercicio.nome(), exercicio.grupoMuscular(), exercicio.series(), exercicio.repeticoes()
                 );
         }
-        System.out.println("[CLIENT] Removendo o observador de meta semanal antes do primeiro check-in.");
+        System.out.println("\n[CLIENT] Removendo o observador de meta semanal antes do primeiro check-in.");
         checkInService.removerObserver(metaSemanalObserver);
         System.out.println("[CLIENT] Primeiro check-in: auditoria, estatística e notificação continuam inscritos.");
         checkInService.realizarCheckIn(aluno.id());
