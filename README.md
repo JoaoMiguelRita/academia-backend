@@ -49,6 +49,7 @@ O cenário de demonstração começa com Ana Souza e preserva o fluxo original d
 [CLIENT] Exercicios do plano:
          - Agachamento livre (PERNAS): 2 series de 10 repetições
          - Remada baixa (COSTAS): 2 series de 10 repetições
+         
 [CLIENT] Removendo o observador de meta semanal antes do primeiro check-in.
 [CLIENT] Primeiro check-in: auditoria, estatística e notificação continuam inscritos.
 [AUDITORIA] Check-in ec8818e0-... registrado para o aluno 2eeb710c-... em 2026-11-26T23:31:24Z.
