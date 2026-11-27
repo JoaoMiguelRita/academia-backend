@@ -1,5 +1,7 @@
 package com.academia.backend.model;
 
+import com.academia.backend.model.enums.NivelTreino;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,8 @@ public final class PlanoTreino {
     private final String nome;
     private final String objetivo;
     private final int frequenciaSemanal;
+    private final NivelTreino nivel;
+    private final int duracaoSemanas;
     private final List<Exercicio> exercicios;
     private final String observacoes;
     private final LocalDate dataCriacao;
@@ -26,6 +30,8 @@ public final class PlanoTreino {
         this.nome = builder.nome;
         this.objetivo = builder.objetivo;
         this.frequenciaSemanal = builder.frequenciaSemanal;
+        this.nivel = builder.nivel;
+        this.duracaoSemanas = builder.duracaoSemanas;
         // Impede que alterações posteriores na lista do Builder alterem o plano criado.
         this.exercicios = List.copyOf(builder.exercicios);
         this.observacoes = builder.observacoes;
@@ -56,6 +62,14 @@ public final class PlanoTreino {
         return frequenciaSemanal;
     }
 
+    public NivelTreino getNivel() {
+        return nivel;
+    }
+
+    public int getDuracaoSemanas() {
+        return duracaoSemanas;
+    }
+
     public List<Exercicio> getExercicios() {
         return exercicios;
     }
@@ -74,6 +88,8 @@ public final class PlanoTreino {
         private final String nome;
         private final String objetivo;
         private int frequenciaSemanal = 3;
+        private NivelTreino nivel = NivelTreino.INICIANTE;
+        private int duracaoSemanas = 4;
         private final List<Exercicio> exercicios = new ArrayList<>();
         private String observacoes = "Nenhuma";
 
@@ -85,6 +101,16 @@ public final class PlanoTreino {
 
         public Builder frequenciaSemanal(int frequenciaSemanal) {
             this.frequenciaSemanal = frequenciaSemanal;
+            return this;
+        }
+
+        public Builder nivel(NivelTreino nivel) {
+            this.nivel = Objects.requireNonNull(nivel, "O nível do treino é obrigatório.");
+            return this;
+        }
+
+        public Builder duracaoSemanas(int duracaoSemanas) {
+            this.duracaoSemanas = duracaoSemanas;
             return this;
         }
 
@@ -101,6 +127,9 @@ public final class PlanoTreino {
         public PlanoTreino build() {
             if (frequenciaSemanal < 1 || frequenciaSemanal > 7) {
                 throw new IllegalStateException("A frequência semanal deve estar entre 1 e 7 dias.");
+            }
+            if (duracaoSemanas < 1 || duracaoSemanas > 52) {
+                throw new IllegalStateException("A duração deve estar entre 1 e 52 semanas.");
             }
             if (exercicios.isEmpty()) {
                 throw new IllegalStateException("O plano deve possuir ao menos um exercício.");

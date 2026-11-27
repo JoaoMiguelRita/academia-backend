@@ -4,7 +4,9 @@ import com.academia.backend.model.Aluno;
 import com.academia.backend.model.Exercicio;
 import com.academia.backend.model.PlanoTreino;
 import com.academia.backend.model.enums.GrupoMuscular;
+import com.academia.backend.model.enums.NivelTreino;
 import com.academia.backend.observer.impl.EstatisticaFrequenciaObserver;
+import com.academia.backend.observer.impl.MetaSemanalObserver;
 import com.academia.backend.observer.impl.NotificacaoObserver;
 import com.academia.backend.service.AlunoService;
 import com.academia.backend.service.CheckInService;
@@ -19,19 +21,22 @@ public class AcademiaClient {
     private final CheckInService checkInService;
     private final EstatisticaFrequenciaObserver estatisticaObserver;
     private final NotificacaoObserver notificacaoObserver;
+    private final MetaSemanalObserver metaSemanalObserver;
 
     public AcademiaClient(
             AlunoService alunoService,
             PlanoTreinoService planoTreinoService,
             CheckInService checkInService,
             EstatisticaFrequenciaObserver estatisticaObserver,
-            NotificacaoObserver notificacaoObserver
+            NotificacaoObserver notificacaoObserver,
+            MetaSemanalObserver metaSemanalObserver
     ) {
         this.alunoService = alunoService;
         this.planoTreinoService = planoTreinoService;
         this.checkInService = checkInService;
         this.estatisticaObserver = estatisticaObserver;
         this.notificacaoObserver = notificacaoObserver;
+        this.metaSemanalObserver = metaSemanalObserver;
     }
 
     /** Executa um pequeno cenário para demonstrar o funcionamento do backend. */
@@ -92,8 +97,55 @@ public class AcademiaClient {
                 estatisticaObserver.consultarTotal(aluno.id())
         );
 
+        demonstrarPlanoAdaptacao();
+
         System.out.println("\n====================================================");
         System.out.println("            DEMONSTRAÇÃO FINALIZADA");
         System.out.println("====================================================");
+    }
+
+    private void demonstrarPlanoAdaptacao() {
+        Aluno aluno = alunoService.cadastrar("Bruno Lima");
+        PlanoTreino plano = PlanoTreino.builder(aluno.id(), "Adaptação", "Iniciar a rotina de treinos")
+                .nivel(NivelTreino.INICIANTE)
+                .duracaoSemanas(4)
+                .frequenciaSemanal(1)
+                .adicionarExercicio(new Exercicio("Agachamento livre", GrupoMuscular.PERNAS, 2, 10))
+                .adicionarExercicio(new Exercicio("Remada baixa", GrupoMuscular.COSTAS, 2, 10))
+                .observacoes("Acompanhar a execução dos exercícios com o instrutor.")
+                .build();
+
+        planoTreinoService.salvar(plano);
+        metaSemanalObserver.acompanharPlano(plano);
+
+        System.out.printf(
+                "%n[CLIENT] Parte 2: plano '%s', nível %s, duração de %d semanas e meta de %d dia(s) por semana.%n",
+                plano.getNome(), plano.getNivel(), plano.getDuracaoSemanas(), plano.getFrequenciaSemanal()
+        );
+        System.out.printf("[CLIENT] Aluno: %s%n", aluno.nome());
+        System.out.printf("[CLIENT] Objetivo: %s%n", plano.getObjetivo());
+        System.out.println("[CLIENT] Exercicios do plano: ");
+        for (Exercicio exercicio : plano.getExercicios()){
+                System.out.printf("         - %s (%s): %d series de %d repetições%n", 
+                // esse espaço antes é só para ficar bonito, fizeram na linha 76 e segui o mesmo padrão aqui 
+                        exercicio.nome(), exercicio.grupoMuscular(), exercicio.series(), exercicio.repeticoes()
+                );
+        }
+        System.out.println("\n[CLIENT] Removendo o observador de meta semanal antes do primeiro check-in.");
+        checkInService.removerObserver(metaSemanalObserver);
+        System.out.println("[CLIENT] Primeiro check-in: auditoria, estatística e notificação continuam inscritos.");
+        checkInService.realizarCheckIn(aluno.id());
+
+        System.out.println("[CLIENT] Reinscrevendo o observador de meta semanal.");
+        checkInService.registrarObserver(metaSemanalObserver);
+        System.out.println("[CLIENT] Segundo check-in no mesmo dia: a presença anterior já está salva.");
+        checkInService.realizarCheckIn(aluno.id());
+
+        System.out.println("[CLIENT] Terceiro check-in no mesmo dia: a mensagem da meta não deve se repetir.");
+        checkInService.realizarCheckIn(aluno.id());
+        System.out.printf(
+                "[CLIENT] Check-ins de %s: %d. Os três registros no mesmo dia representam um dia de treino.%n",
+                aluno.nome(), checkInService.listarPorAluno(aluno.id()).size()
+        );
     }
 }
